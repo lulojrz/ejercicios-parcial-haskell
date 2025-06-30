@@ -133,3 +133,97 @@ mejorPromedio:: [(String,[Int])]-> String
 mejorPromedio [x] = fst x
 mejorPromedio ((x,y):(x1,x2):xs) | promediodeNotas (notasAlumno((x, y):(x1, x2):xs) x)   >= promediodeNotas(notasAlumno ((x, y):(x1, x2):xs) x1)  = mejorPromedio((x,y):xs)
                                  | otherwise = mejorPromedio((x1,x2):xs)
+
+
+relacionesValidas:: [(String,String)]-> Bool
+relacionesValidas [x] = True
+relacionesValidas ((x1,x2):xs)
+ | x1 == x2 = False
+ | estaRepetida (x1,x2) xs == True = False
+ | otherwise = relacionesValidas xs
+
+
+estaRepetida:: (String,String)->  [(String,String)] ->Bool
+estaRepetida _ [] = False
+estaRepetida (a,b) ((x,y):tuplaxs)
+ |(a==x && b == y) || (a==y && b==x) = True
+ | otherwise =  estaRepetida (x,y) tuplaxs
+
+
+--ejercicio 
+personas:: [(String,String)] -> [String]
+personas lista = eliminarRepetidos(personasAux lista)
+
+personasAux:: [(String,String)] -> [String]
+personasAux [] = []
+personasAux ((x,y):xs) = x:y: personasAux xs
+
+eliminarRepetidos::[String]->[String]
+eliminarRepetidos [] = []
+eliminarRepetidos (x:xs)
+ | estaRepetido x xs == True = eliminarRepetidos xs
+ | otherwise = x : eliminarRepetidos xs
+
+
+estaRepetido::String->[String]->Bool
+estaRepetido _ [] = False
+estaRepetido persona (x:xs)
+ | persona == x = True
+ | otherwise = estaRepetido persona xs
+
+
+--ejercicio
+amigosDe::String ->[(String,String)] ->[String]
+amigosDe _ [] = []
+amigosDe persona ((x,y):xs)
+ | persona == x = y: amigosDe persona xs
+ | persona == y = x: amigosDe persona xs
+ | otherwise = amigosDe persona xs
+
+
+votosEnBlanco::[(String,String)]-> [Int]-> Int-> Int
+votosEnBlanco formulas votosFormulas votostotales = votostotales - recuentosVotos votosFormulas
+
+recuentosVotos::[Int]-> Int
+recuentosVotos [] = 0
+recuentosVotos (x:xs) = x+ recuentosVotos xs
+
+formulasValidas::[(String,String)]-> Bool
+formulasValidas [] = True
+formulasValidas ((x,y):xs) 
+ | x == y = False 
+ | pertenece x xs = False
+ | pertenece y xs = False
+ | otherwise = formulasValidas xs
+
+pertenece:: String->[(String,String)]-> Bool
+pertenece _ [] = False
+pertenece nombre ((x,y):xs)
+ | nombre == x || nombre == y = True
+ | otherwise = pertenece nombre xs
+
+
+porcentajeDeVotos:: String->[(String,String)]->[Int]->Float
+porcentajeDeVotos presidente formulas votos = elegirPresidente presidente (calcularPorcentaje formulas votos) 
+
+calcularPorcentaje::[(String,String)]->[Int]->[(String,Float)]
+calcularPorcentaje [] []  = []
+calcularPorcentaje ((presidente,_):otros) (x:xs) = (presidente, 100*(fromIntegral(x)/fromIntegral(recuentosVotos (x:xs)))) : calcularPorcentaje otros xs
+
+elegirPresidente:: String->[(String,Float)]-> Float
+elegirPresidente _ [] = 0
+elegirPresidente presidente ((pres,votos):xs)
+ |  presidente == pres = votos
+ |  otherwise = elegirPresidente presidente xs
+
+
+proximoPresidente::[(String,String)]->[Int]->String
+proximoPresidente formulas votos = maximo (calcularPorcentaje formulas votos)
+
+maximo::[(String,Float)]->String
+maximo [(presi,votos)] = presi
+maximo ((presi,votos):(presi2,votos2):xs) 
+ | votos> votos2 = maximo ((presi,votos):xs)
+ | votos2> votos = maximo ((presi2,votos2):xs)
+
+
